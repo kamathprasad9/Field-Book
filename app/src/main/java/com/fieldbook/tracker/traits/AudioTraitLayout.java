@@ -1,5 +1,7 @@
 package com.fieldbook.tracker.traits;
 
+import static com.fieldbook.tracker.activities.CollectActivity.TAG;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +9,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -37,6 +40,8 @@ public class AudioTraitLayout extends BaseTraitLayout {
     private ButtonState buttonState;
     private TextView audioRecordingText;
 
+    private AudioRecordedFor audioRecordedFor = AudioRecordedFor.PLOT;
+
     public AudioTraitLayout(Context context) {
         super(context);
     }
@@ -61,7 +66,11 @@ public class AudioTraitLayout extends BaseTraitLayout {
 
     @Override
     public int layoutId() {
-        return R.layout.trait_audio;
+        return audioRecordedFor == AudioRecordedFor.PLOT ? R.layout.trait_audio : R.layout.field_audio;
+    }
+
+    public ButtonState getButtonState() {
+        return buttonState;
     }
 
     @Override
@@ -69,6 +78,21 @@ public class AudioTraitLayout extends BaseTraitLayout {
         audioRecordingText = act.findViewById(R.id.audioRecordingText);
         buttonState = ButtonState.WAITING_FOR_RECORDING;
         controlButton = act.findViewById(R.id.record);
+        controlButton.setOnClickListener(new AudioTraitOnClickListener());
+        controlButton.requestFocus();
+    }
+
+    /**
+     * init function for recording field audio
+     *
+     * @param act
+     * @param audioRecordedFor
+     */
+    public void init(Activity act, AudioRecordedFor audioRecordedFor) {
+        this.audioRecordedFor = audioRecordedFor;
+        audioRecordingText = act.findViewById(R.id.fieldAudioRecordingText);
+        buttonState = ButtonState.WAITING_FOR_RECORDING;
+        controlButton = act.findViewById(R.id.fieldAudioRecord);
         controlButton.setOnClickListener(new AudioTraitOnClickListener());
         controlButton.requestFocus();
     }
@@ -153,6 +177,11 @@ public class AudioTraitLayout extends BaseTraitLayout {
         }
     }
 
+    public enum AudioRecordedFor {
+        PLOT,
+        FIELD
+    }
+
     private enum ButtonState {
         WAITING_FOR_RECORDING(R.drawable.trait_audio),
         RECORDING(R.drawable.trait_audio_stop),
@@ -209,7 +238,7 @@ public class AudioTraitLayout extends BaseTraitLayout {
                     mediaPlayer.reset();
                     mediaPlayer.release();
                 }
-                mediaPlayer = MediaPlayer.create(getContext(),recordingLocation);
+                mediaPlayer = MediaPlayer.create(getContext(), recordingLocation);
                 mediaPlayer.setOnCompletionListener(mp -> {
                     stopPlayback();
                     buttonState = ButtonState.WAITING_FOR_PLAYBACK;
@@ -270,7 +299,13 @@ public class AudioTraitLayout extends BaseTraitLayout {
 
         // For audio trait type
         private void setRecordingLocation(String recordingName) {
-            DocumentFile audioDir = DocumentTreeUtil.Companion.getFieldMediaDirectory(getContext(), "audio");
+            DocumentFile audioDir;
+
+            if (audioRecordedFor == AudioRecordedFor.PLOT)
+                audioDir = DocumentTreeUtil.Companion.getFieldMediaDirectory(getContext(), "audio");
+            else
+                audioDir = DocumentTreeUtil.Companion.getFieldMediaDirectory(getContext(), "field_audio");
+
             if (audioDir != null && audioDir.exists()) {
                 DocumentFile audioFile = audioDir.createFile("*/mp4", recordingName + ".mp4");
                 if (audioFile != null) {
@@ -304,7 +339,10 @@ public class AudioTraitLayout extends BaseTraitLayout {
 
             String mGeneratedName;
             try {
-                mGeneratedName = getCurrentRange().plot_id + " " + timeStamp.format(c.getTime());
+                if (audioRecordedFor == AudioRecordedFor.PLOT)
+                    mGeneratedName = getCurrentRange().plot_id + " " + timeStamp.format(c.getTime());
+                else
+                    mGeneratedName = "field_" + getCurrentRange().plot_id + " " + timeStamp.format(c.getTime());
             } catch (Exception e) {
                 mGeneratedName = "error " + timeStamp.format(c.getTime());
             }

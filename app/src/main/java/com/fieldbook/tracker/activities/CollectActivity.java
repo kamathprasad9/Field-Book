@@ -53,6 +53,7 @@ import com.fieldbook.tracker.objects.RangeObject;
 import com.fieldbook.tracker.objects.TraitObject;
 import com.fieldbook.tracker.objects.VerifyPersonHelper;
 import com.fieldbook.tracker.preferences.GeneralKeys;
+import com.fieldbook.tracker.traits.AudioTraitLayout;
 import com.fieldbook.tracker.traits.BaseTraitLayout;
 import com.fieldbook.tracker.traits.CategoricalTraitLayout;
 import com.fieldbook.tracker.traits.GoProTraitLayout;
@@ -214,6 +215,11 @@ public class CollectActivity extends ThemedActivity
      */
     private AlertDialog dialogMultiMeasureDelete;
     private AlertDialog dialogMultiMeasureConfirmDelete;
+
+    /**
+     * For integrating new audio recorder
+     */
+    private AudioTraitLayout fieldAudio;
 
     public void triggerTts(String text) {
         if (ep.getBoolean(GeneralKeys.TTS_LANGUAGE_ENABLED, false)) {
@@ -415,6 +421,9 @@ public class CollectActivity extends ThemedActivity
 
     private void loadScreen() {
         setContentView(R.layout.activity_collect);
+
+        fieldAudio = findViewById(R.id.fieldAudioLayout);
+        fieldAudio.init(this, AudioTraitLayout.AudioRecordedFor.FIELD);
 
         initToolbars();
 
@@ -1848,9 +1857,7 @@ public class CollectActivity extends ThemedActivity
 
     @NonNull
     @Override
-    public TraitBoxView getTraitBox() {
-        return traitBox;
-    }
+    public TraitBoxView getTraitBox() { return traitBox; }
 
     @Override
     public boolean existsTrait(final int ID) {
