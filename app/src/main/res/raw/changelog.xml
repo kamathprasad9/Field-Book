@@ -1,5 +1,10 @@
 <changelog>
 
+    <release date="2025-10-21" versionCode="60400" versionName="v6.4.0">
+        <new>Added comprehensive workflow testing for minor releases and changelog management (https://github.com/kamathprasad9/Field-Book/pull/2)</new>
+        <bugfix>Fixed workflow to handle missing release notes gracefully and include PR links in changelog (https://github.com/kamathprasad9/Field-Book/pull/1)</bugfix>
+    </release>
+
     <release date="2025-10-20" versionCode="60302" versionName="v6.3.2">
         <bugfix>GoPro Hero 13 no longer causes a crash</bugfix>
         <bugfix>Reduced installer size by using a different ffmpeg library</bugfix>

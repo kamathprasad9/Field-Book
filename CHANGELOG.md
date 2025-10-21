@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Fixed
+
+## [v6.4.0] - 2025-10-21
+
+### Added
 - Added comprehensive workflow testing for minor releases and changelog management (https://github.com/kamathprasad9/Field-Book/pull/2)
 
 ### Changed
@@ -783,3 +789,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v6.3.1]: https://github.com/PhenoApps/Field-Book/releases/tag/6.3.1
 
 [v6.3.2]: https://github.com/PhenoApps/Field-Book/releases/tag/6.3.2
+[v6.4.0]: https://github.com/kamathprasad9/Field-Book/releases/tag/6.4.0
