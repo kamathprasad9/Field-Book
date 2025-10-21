@@ -153,21 +153,43 @@ jobs:
           echo "changelog_additions=$changelog_escaped" >> $GITHUB_OUTPUT
 
           today=$(date +'%Y-%m-%d')
+          
+          # Replace Unreleased with versioned release - but only include sections that have content
           sed -i "s/## \[Unreleased\]/## [v$VERSION] - $today/" CHANGELOG.md
-          # Create new Unreleased section, only including sections that have content
+          
+          # Remove empty sections from the newly created release
+          # Remove "### Added" if it has no bullet points
+          if ! echo "$unreleased_section" | sed -n '/^### Added$/,/^### /p' | grep -q "^- "; then
+            sed -i '/^### Added$/d' CHANGELOG.md
+          fi
+          
+          # Remove "### Changed" if it has no bullet points  
+          if ! echo "$unreleased_section" | sed -n '/^### Changed$/,/^### /p' | grep -q "^- "; then
+            sed -i '/^### Changed$/d' CHANGELOG.md
+          fi
+          
+          # Remove "### Fixed" if it has no bullet points
+          if ! echo "$unreleased_section" | sed -n '/^### Fixed$/,/^### /p' | grep -q "^- "; then
+            sed -i '/^### Fixed$/d' CHANGELOG.md
+          fi
+
+          # Create new Unreleased section - only create sections that had content in this release
           new_unreleased="## [Unreleased]\n"
-          if echo "$unreleased_section" | grep -q "^### Added" && echo "$unreleased_section" | sed -n '/^### Added$/,/^### /p' | grep -q "^- "; then
+          
+          # Only add sections that actually had content in the release we just created
+          if echo "$unreleased_section" | sed -n '/^### Added$/,/^### /p' | grep -q "^- "; then
             new_unreleased+="\n### Added\n"
           fi
-          if echo "$unreleased_section" | grep -q "^### Changed" && echo "$unreleased_section" | sed -n '/^### Changed$/,/^### /p' | grep -q "^- "; then
+          if echo "$unreleased_section" | sed -n '/^### Changed$/,/^### /p' | grep -q "^- "; then
             new_unreleased+="\n### Changed\n" 
           fi
-          if echo "$unreleased_section" | grep -q "^### Fixed" && echo "$unreleased_section" | sed -n '/^### Fixed$/,/^### /p' | grep -q "^- "; then
+          if echo "$unreleased_section" | sed -n '/^### Fixed$/,/^### /p' | grep -q "^- "; then
             new_unreleased+="\n### Fixed\n"
           fi
-          if [[ "$new_unreleased" == "## [Unreleased]\n" ]]; then
-            new_unreleased+="\n### Added\n\n### Changed\n\n### Fixed\n"
-          fi
+          
+          # If no sections had content, don't create any sections in new Unreleased
+          # (sections will be added by process-pr-merge when PRs are merged)
+          
           sed -i '/## \[v'$VERSION'\]/i '"$new_unreleased"'' CHANGELOG.md
 
           REPO_URL="https://github.com/${{ github.repository }}/releases/tag"
