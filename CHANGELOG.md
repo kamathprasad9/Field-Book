@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added comprehensive workflow testing for minor releases and changelog management (https://github.com/kamathprasad9/Field-Book/pull/2)
 
 ### Changed
 
